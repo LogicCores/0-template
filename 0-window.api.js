@@ -1,6 +1,13 @@
 
-// TODO: Load adapters as needed on demand
+exports.forLib = function (LIB) {
+    
+    var exports = {};
 
-exports.adapters = {
-    firewidgets: require("./for/firewidgets")
+    // TODO: Load adapters as needed on demand
+    
+    exports.adapters = {
+        firewidgets: require("./for/firewidgets/0-server.api").forLib(LIB)
+    };
+
+    return exports;
 }
