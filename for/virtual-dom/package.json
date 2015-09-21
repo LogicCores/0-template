@@ -1,0 +1,9 @@
+{
+  "name": "0-template-for-virtual-dom",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "escape-regexp-component": "^1.0.2",
+    "virtual-dom": "^2.1.1"
+  }
+}
