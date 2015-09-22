@@ -3,7 +3,7 @@ exports.forLib = function (LIB) {
     var ccjson = this;
 
     const ESCAPE_REGEXP_COMPONENT = require("escape-regexp-component");
-    const HTML_TO_HSCRIPT = require('../../../../lib/html2hscript');
+    var CVDOM = require('../../../../lib/cvdom'); CVDOM = CVDOM.forLib(CVDOM.makeLib());
 
     return LIB.Promise.resolve({
         forConfig: function (defaultConfig) {
@@ -22,21 +22,54 @@ exports.forLib = function (LIB) {
                         return LIB.Promise.promisify(function (callback) {
 
                             html = html.replace(/^\s*|\s*$/g, "");
-
+/*
 console.log("--------------------- html ---------------------");
 process.stdout.write(html);
 console.log("--------------------- html ---------------------");
-
-                            return HTML_TO_HSCRIPT(html, {
-                                
-                            }, function(err, hscript) {
+*/
+                            return CVDOM.html2hscript(html, {
+                                "controlAttributes": {
+                                    "prefix": "data-component-",
+                                    "remove": true,
+                                    "scriptLocations": {
+                                        "window": true
+                                    }
+                                }
+                            }, function(err, chscript, components, inlineScripts) {
                                 if (err) return callback(err);
-                                
+/*
 console.log("--------------------- VDOM HSCRIPT ---------------------");
 process.stdout.write(hscript);
+console.log("inlineScripts", inlineScripts);
 console.log("--------------------- VDOM HSCRIPT ---------------------");
-
-                                return callback(null, html);
+*/
+                                var code = [];
+                                code.push('<script data-component-context="FireWidget/Bundle" data-component-location="window">\n');
+                                code.push('FireWidget.registerTemplate({');
+                                code.push(  'getLayout: function () {');
+                                code.push(    'return {');
+                                code.push(      'buildVTree: function (h, ch) {');
+                                code.push(        'return ' + chscript + ';');
+                                code.push(      '}');
+                                code.push(    '};');
+                                code.push(  '},');
+                                code.push(  'getComponents: function () {');
+                                code.push(    'return {');
+                                Object.keys(components).forEach(function (id, i) {
+                                    code.push(      (i>0?",":"") + '"' + id + '": {');
+                                    code.push(        'buildVTree: function (h, ch) {');
+                                    code.push(          'return ' + components[id].chscript + ';');
+                                    code.push(        '}');
+                                    code.push(      '}');
+                                });
+                                code.push(  '  };');
+                                code.push(  '},');
+                                code.push(  'getScripts: function () {');
+                                code.push(    'return ' + JSON.stringify(inlineScripts) + ';');
+                                code.push(  '}');
+                                code.push('});');
+                                code.push('\n</script>');
+                                return callback(null, code.join(""));
                             });
                         })();
                     }

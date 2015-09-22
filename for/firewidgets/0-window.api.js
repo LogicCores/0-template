@@ -1,6 +1,10 @@
 
 exports.forLib = function (LIB) {
 
+    const h = require("../../../../lib/cvdom/h");
+    const ch = require("../../../../lib/cvdom/ch");
+    const createElement = require('../virtual-dom/node_modules/virtual-dom/create-element');
+
 	var templateIndex = 0;
 	function getNextRandomKey () {
 		templateIndex++;
@@ -11,7 +15,7 @@ exports.forLib = function (LIB) {
 
     exports.spin = function (context) {
         
-        var Template = function () {
+        var jQueryTemplate = function () {
             var self = this;
             
             self.domNode = null;
@@ -19,7 +23,7 @@ exports.forLib = function (LIB) {
         }
 
 
-        Template.prototype.attachDomNode = function (domNode) {
+        jQueryTemplate.prototype.attachDomNode = function (domNode) {
             var self = this;
 
 			self.domNode = domNode;
@@ -106,7 +110,7 @@ exports.forLib = function (LIB) {
     		});
     	}
 
-        Template.prototype.getComponentHelpers = function () {
+        jQueryTemplate.prototype.getComponentHelpers = function () {
     		var self = this;
             return {
                 renderSection: function (context, element, name, data, getView, hookEvents) {
@@ -139,8 +143,30 @@ exports.forLib = function (LIB) {
             };
         }
 
+
+        var VTreeTemplate = function (template) {
+            var self = this;
+            self.template = template;
+            self.domNode = null;
+        }
+
+        VTreeTemplate.prototype.attachDomNode = function (domNode) {
+            var self = this;
+			self.domNode = domNode;
+        }
+
+        VTreeTemplate.prototype.render = function (controllingState) {
+            var self = this;
+            var chi = ch(controllingState);
+            var vtree = self.template.buildVTree(h, chi);
+            var elm = createElement(vtree);
+            $(elm).appendTo(self.domNode);
+            return self.domNode;
+        }
+
         return {
-            Template: Template
+            jQueryTemplate: jQueryTemplate,
+            VTreeTemplate: VTreeTemplate
         };
     }
 
