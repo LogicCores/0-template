@@ -1,9 +1,9 @@
 
 exports.forLib = function (LIB) {
 
-    const h = require("../../../../lib/cvdom/h");
+    const h = LIB.vdom.h;
     const ch = require("../../../../lib/cvdom/ch");
-    const createElement = require('../virtual-dom/node_modules/virtual-dom/create-element');
+    const createElement = LIB.vdom.createElement;
 
 	var templateIndex = 0;
 	function getNextRandomKey () {
@@ -160,6 +160,10 @@ exports.forLib = function (LIB) {
             var chi = ch(controllingState);
             var vtree = self.template.buildVTree(h, chi);
             var elm = createElement(vtree);
+            
+            // TODO: Patch instead of replacing HTML.
+            self.domNode.html("");
+            
             $(elm).appendTo(self.domNode);
             return self.domNode;
         }
