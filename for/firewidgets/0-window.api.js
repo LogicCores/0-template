@@ -148,6 +148,8 @@ exports.forLib = function (LIB) {
             var self = this;
             self.template = template;
             self.domNode = null;
+            
+            self.existingListeners = [];
         }
 
         VTreeTemplate.prototype.attachDomNode = function (domNode) {
@@ -160,11 +162,13 @@ exports.forLib = function (LIB) {
             var chi = ch(controllingState);
             var vtree = self.template.buildVTree(h, chi);
             var elm = createElement(vtree);
-            
+
             // TODO: Patch instead of replacing HTML.
+            self.domNode.off();
             self.domNode.html("");
-            
             $(elm).appendTo(self.domNode);
+            self.existingListeners = [];
+
             return self.domNode;
         }
 
