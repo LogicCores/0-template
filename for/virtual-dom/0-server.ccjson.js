@@ -37,15 +37,27 @@ console.log("--------------------- html ---------------------");
                                 }
                             }, function(err, chscript, components, inlineScripts) {
                                 if (err) return callback(err);
+
+//console.log("components", components);
+
 /*
 console.log("--------------------- VDOM HSCRIPT ---------------------");
 process.stdout.write(hscript);
 console.log("inlineScripts", inlineScripts);
 console.log("--------------------- VDOM HSCRIPT ---------------------");
 */
+
+//console.log("TRANSFORM CONFIG", config);
+
                                 var code = [];
-                                code.push('<script data-component-context="FireWidget/Bundle" data-component-location="window">\n');
-                                code.push('FireWidget.registerTemplate({');
+                                
+                                if (config.format === "commonjs") {
+                                    code.push('module.exports = {');
+                                } else {
+                                    // DEPRECATE
+                                    code.push('<script data-component-context="FireWidget/Bundle" data-component-location="window">\n');
+                                    code.push('FireWidget.registerTemplate({');
+                                }
                                 code.push(  'getLayout: function () {');
                                 code.push(    'return {');
                                 code.push(      'buildVTree: function (h, ch) {');
@@ -67,8 +79,13 @@ console.log("--------------------- VDOM HSCRIPT ---------------------");
                                 code.push(  'getScripts: function () {');
                                 code.push(    'return ' + JSON.stringify(inlineScripts) + ';');
                                 code.push(  '}');
-                                code.push('});');
-                                code.push('\n</script>');
+                                if (config.format === "commonjs") {
+                                    code.push('};');
+                                } else {
+                                    // DEPRECATE
+                                    code.push('});');
+                                    code.push('\n</script>');
+                                }
                                 return callback(null, code.join(""));
                             });
                         })();
