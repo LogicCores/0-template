@@ -171,7 +171,9 @@ exports.forLib = function (LIB) {
 
         return {
             jQueryTemplate: jQueryTemplate,
-            VTreeTemplate: VTreeTemplate
+            VTreeTemplate: VTreeTemplate,
+            h: h,
+            ch: ch
         };
     }
 
