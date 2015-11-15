@@ -2,9 +2,6 @@
 exports.forLib = function (LIB) {
     var ccjson = this;
 
-    const ESCAPE_REGEXP_COMPONENT = require("escape-regexp-component");
-    var CVDOM = require('../../../../lib/cvdom'); CVDOM = CVDOM.forLib(CVDOM.makeLib());
-
     return LIB.Promise.resolve({
         forConfig: function (defaultConfig) {
 
@@ -37,6 +34,8 @@ console.log("--------------------- html ---------------------");
 
                             var scriptLocations = {};
                             scriptLocations[config.location || "window"] = true;
+
+                            var CVDOM = require('../../../../lib/cvdom'); CVDOM = CVDOM.forLib(CVDOM.makeLib());
 
                             return CVDOM.html2chscript(html, {
                                 "controlAttributes": {
