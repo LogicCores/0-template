@@ -148,11 +148,17 @@ exports.forLib = function (LIB) {
             var self = this;
             self.template = template;
             self.domNode = null;
+
+//console.log("INIT NEW TEMPLATE", template);
+
         }
 
         VTreeTemplate.prototype.attachDomNode = function (domNode) {
             var self = this;
 			self.domNode = domNode;
+
+//console.log("ATTACH DOM NODE", domNode);
+
         }
 
         VTreeTemplate.prototype.render = function (controllingState) {
@@ -160,6 +166,8 @@ exports.forLib = function (LIB) {
             var chi = ch(controllingState);
             var vtree = self.template.buildVTree(h, chi);
             var elm = createElement(vtree);
+
+//console.log("RENDER TO DOM NODE", self.domNode);
 
             // TODO: Patch instead of replacing HTML.
             self.domNode.off();
