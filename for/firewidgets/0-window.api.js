@@ -144,9 +144,10 @@ exports.forLib = function (LIB) {
         }
 
 
-        var VTreeTemplate = function (template) {
+        var VTreeTemplate = function (id, chscript) {
             var self = this;
-            self.template = template;
+            self.id = id;
+            self.chscript = chscript;
             self.domNode = null;
 
 //console.log("INIT NEW TEMPLATE", template);
@@ -156,15 +157,22 @@ exports.forLib = function (LIB) {
         VTreeTemplate.prototype.attachDomNode = function (domNode) {
             var self = this;
 			self.domNode = domNode;
-
-//console.log("ATTACH DOM NODE", domNode);
-
         }
 
-        VTreeTemplate.prototype.render = function (controllingState) {
+        VTreeTemplate.prototype.render = function (controllingState, options) {
             var self = this;
+
+
+            var renderer = new context.contexts.adapters.template["virtual-dom"].Template(
+                self.id,
+                self.chscript
+            );
+
+            renderer.renderTo(self.domNode, controllingState, options);
+
+/*
             var chi = ch(controllingState);
-            var vtree = self.template.buildVTree(h, chi);
+            var vtree = self.chscript.buildVTree(h, chi);
             var elm = createElement(vtree);
 
 //console.log("RENDER TO DOM NODE", self.domNode);
@@ -173,6 +181,7 @@ exports.forLib = function (LIB) {
             self.domNode.off();
             self.domNode.html("");
             $(elm).appendTo(self.domNode);
+*/
 
             return self.domNode;
         }

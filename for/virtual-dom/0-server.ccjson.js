@@ -37,7 +37,9 @@ console.log("--------------------- html ---------------------");
 
                             var CVDOM = require('../../../../lib/cvdom'); CVDOM = CVDOM.forLib(CVDOM.makeLib());
 
+
                             return CVDOM.html2chscript(html, {
+                                "templateId": config.templateId || null,
                                 "controlAttributes": {
                                     "prefix": "data-component-",
                                     "remove": true,
@@ -67,9 +69,14 @@ console.log("--------------------- VDOM HSCRIPT ---------------------");
                                     // DEPRECATED
                                     code.push('<script data-component-context="FireWidget/Bundle" data-component-location="window">\n');
                                     code.push('FireWidget.registerTemplate({');
-
+                                    if (config.templateId) {
+                                        code.push(  'id: "' + config.templateId + '",');
+                                    }
                                     code.push(  'getLayout: function () {');
                                     code.push(    'return {');
+                                    if (config.templateId) {
+                                        code.push(  'id: "' + config.templateId + '",');
+                                    }
                                     code.push(      'buildVTree: function (h, ch) {');
                                     code.push(        'return ' + chscript + ';');
                                     code.push(      '}');

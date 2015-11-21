@@ -6,7 +6,8 @@ exports.forLib = function (LIB) {
     // TODO: Load adapters as needed on demand
 
     exports.adapters = {
-        firewidgets: require("./for/firewidgets/0-window.api").forLib(LIB)
+        firewidgets: require("./for/firewidgets/0-window.api").forLib(LIB),
+        "virtual-dom": require("./for/virtual-dom/0-window.api").forLib(LIB),
     };
 
     exports.forContexts = function (contexts) {
