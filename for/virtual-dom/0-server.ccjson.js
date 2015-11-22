@@ -17,6 +17,8 @@ exports.forLib = function (LIB) {
 
                     function transform (html, callConfig) {
 
+                        const CRYPTO = require("crypto");
+
                         var config = {};
                         LIB._.merge(config, defaultConfig);
                         LIB._.merge(config, instanceConfig);
@@ -59,24 +61,36 @@ console.log("--------------------- VDOM HSCRIPT ---------------------");
 
 //console.log("TRANSFORM CONFIG", config);
 
+//console.log("MASE cjsCode", cjsCode);
+
                                 var code = [];
 
                                 if (config.format === "commonjs") {
 
-                                    code.push(cjsCode);
+                                    if (config.wrapper === "firewidget.bundle") {
+
+                                        code.push('PINF.bundle("", function(require){');
+                                            code.push('require.memoize("/main.js", function(require, exports, module) {');
+                                                code.push(cjsCode);
+                                            code.push('});');
+                                        code.push('});');
+
+                                    } else {
+
+                                        code.push(cjsCode);
                                     
+                                    }
+
+                                    code = code.join("\n");
+
                                 } else {
                                     // DEPRECATED
                                     code.push('<script data-component-context="FireWidget/Bundle" data-component-location="window">\n');
                                     code.push('FireWidget.registerTemplate({');
-                                    if (config.templateId) {
-                                        code.push(  'id: "' + config.templateId + '",');
-                                    }
+                                    code.push(  'id: "%%__WIDGET_HASH_ID__%%",');
                                     code.push(  'getLayout: function () {');
                                     code.push(    'return {');
-                                    if (config.templateId) {
-                                        code.push(  'id: "' + config.templateId + '",');
-                                    }
+                                    code.push(      'id: "%%__WIDGET_HASH_ID__%%",');
                                     code.push(      'buildVTree: function (h, ch) {');
                                     code.push(        'return ' + chscript + ';');
                                     code.push(      '}');
@@ -86,6 +100,7 @@ console.log("--------------------- VDOM HSCRIPT ---------------------");
                                     code.push(    'return {');
                                     Object.keys(components).forEach(function (id, i) {
                                         code.push(      (i>0?",":"") + '"' + id + '": {');
+                                        code.push(        'id: "' + id + ':%%__WIDGET_HASH_ID__%%",');
                                         code.push(        'buildVTree: function (h, ch) {');
                                         code.push(          'return ' + components[id].chscript + ';');
                                         code.push(        '}');
@@ -105,8 +120,12 @@ console.log("--------------------- VDOM HSCRIPT ---------------------");
                                     code.push(  '}');
                                     code.push('});');
                                     code.push('\n</script>');
+
+                                    code = code.join("\n");
+
+                                    code = code.replace(/%%__WIDGET_HASH_ID__%%/g, (config.templateId || "") + ":" + CRYPTO.createHash("sha1").update(code).digest('hex'));
                                 }
-                                return callback(null, code.join("\n"));
+                                return callback(null, code);
                             });
                         })();
                     }

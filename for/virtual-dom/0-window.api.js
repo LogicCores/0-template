@@ -64,7 +64,7 @@ exports.forLib = function (LIB) {
                     !tplCache.vtree ||
                     options.forceCompleteRerender
                 ) {
-                    if (LIB.VERBOSE) console.info("Generate new vtree for template '" + cacheId + "'");
+                    if (LIB.VERBOSE) console.info("Generate new vtree for template '" + cacheId + "':", chscript);
                     // Change detected
                     tplCache.controllingState = controllingState;
                     tplCache.controllingStateHash = controllingState.__snapshot_hash__;
@@ -78,13 +78,23 @@ exports.forLib = function (LIB) {
 
                 function attachRootNode () {
 
+                    var hasChanged = true;
+
                     // Detach previous rootNode
                     targetDomNode.children().each(function () {
+                        if (!hasChanged) return;
                         var child = $(this);
                         if (child.attr("vdom-tpl-id")) {
+                            if (child.get(0) === tplCache.rootNode) {
+                                hasChanged = false;
+                                return;
+                            }
                             child.detach();
                         }
                     });
+
+                    if (!hasChanged) return;
+
                     // Remove all extra content just in case.
                     targetDomNode.empty();
 
@@ -98,27 +108,27 @@ exports.forLib = function (LIB) {
                     options.forceCompleteRerender
                 ) {
 
-                    if (LIB.VERBOSE) console.info("Create new DOM node for template '" + cacheId + "'");
-
                     // Generate new targetDomNode children
                     tplCache.rootNode = createElement(nextVtree);
                     $(tplCache.rootNode).attr("vdom-tpl-id", cacheId);
-                    
+
+                    if (LIB.VERBOSE) console.info("Created new DOM node for template '" + cacheId + "':", tplCache.rootNode);
+
                     attachRootNode();
                 } else
                 if (nextVtree !== previousVtree) {
                     // Patch targetDomNode children
-
-                    if (LIB.VERBOSE) console.info("Patch existing DOM node for template '" + cacheId + "'");
 
                     tplCache.rootNode = patch(
                         tplCache.rootNode,
                         diff(previousVtree, nextVtree)
                     );
 
+                    if (LIB.VERBOSE) console.info("Patched existing DOM node for template '" + cacheId + "':", tplCache.rootNode);
+
                     attachRootNode();
                 } else {
-                    if (LIB.VERBOSE) console.info("Use existing DOM node as-is for template '" + cacheId + "'");
+                    if (LIB.VERBOSE) console.info("Using existing DOM node as-is for template '" + cacheId + "':", tplCache.rootNode);
                 }
             }
         }
